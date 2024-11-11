@@ -11,7 +11,12 @@ const map = createMap(equals) // → {get, set, delete}
 map.get(key, value) // → value
 map.set(key, value) // → true/false ("added a new key")
 map.delete(key, value) // → undefined/existing value
+map.getReference(key, (insertIfUnknown = false)) // → {key, value}
 ```
+
+`map.getReference` is a low-level feature for doing in-place updates, updates
+relying on the existing value, or otherwise replace the value at a given key
+without doing new lookups. The `key` must not be altered.
 
 ## Examples
 
@@ -35,6 +40,10 @@ map.delete(keyB) // → undefined
 
 // Deleted key
 map.get(keyB) // → undefined
+
+const r = map.getReference(keyA) // → {key, value}
+r.value = 123
+map.get(keyA) === value // → 123
 ```
 
 In Node.js, if all key input is of `Buffer` type, use the built-in equals

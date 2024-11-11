@@ -75,3 +75,48 @@ test('Delete key', (t) => {
 	t.equal(map.get(keyB), valueB)
 	t.end()
 })
+
+test('Get reference without inserting', (t) => {
+	const key = new Uint8Array([4, 2, 2])
+	const valueA = Symbol('value A')
+	const valueB = Symbol('value B')
+	const map = create(equals)
+	const r = map.getReference(key)
+
+	t.deepEqual(r, undefined, 'unknown key')
+
+	map.set(key, valueA)
+
+	const r2 = map.getReference(key)
+	t.deepEqual(r2, {key, value: valueA}, 'existing key')
+
+	r2.value = valueB
+
+	const r3 = map.get(key)
+	t.equal(r3, valueB, 'value updated by reference')
+	t.end()
+})
+
+test('Get reference with insertion', (t) => {
+	const keyA = new Uint8Array([4, 2, 2])
+	const keyB = new Uint8Array([4, 2, 3])
+	const valueA = Symbol('value A')
+	const valueB = Symbol('value B')
+	const map = create(equals)
+	const r = map.getReference(keyA, true)
+
+	t.deepEqual(r, {key: keyA, value: undefined}, 'reference is inserted')
+
+	r.value = valueA
+	const r2 = map.get(keyA)
+
+	t.equal(r2, valueA, 'value updated by reference')
+
+	const r3 = map.getReference(keyB, true)
+
+	r3.value = valueB
+
+	t.equal(map.get(keyA), valueA)
+	t.equal(map.get(keyB), valueB)
+	t.end()
+})
