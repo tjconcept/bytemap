@@ -2,9 +2,11 @@
 
 A map supporting `Uint8Array` (or Node.js' `Buffer`) for keys.
 
-The native EcmaScript `Map` does not support binary keys (bytes) without these
-being encoded as another primitive, such as a string, number, or similar. This
-is an attempt to avoid that encoding overhead.
+The EcmaScript native
+[`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)
+does not support binary keys (bytes) without these being encoded as another
+primitive, such as a string, number, or similar. This is an attempt to avoid
+that encoding overhead.
 
 ```js
 const map = createMap(equals) // → {get, set, delete}
