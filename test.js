@@ -2,14 +2,14 @@ import {equals} from 'https://esm.sh/jsr/@std/bytes@1.0.3/equals.js'
 import test from 'https://esm.sh/tape@5.9.0'
 import create from './index.js'
 
-test('Single key', (t) => {
+test('Set and get a single key', (t) => {
 	const key = new Uint8Array([4, 2])
 	const value = Symbol('value')
 	const map = create(equals)
 	const r = map.set(key, value)
 
-	t.equal(r, true)
-	t.equal(map.get(key), value)
+	t.equal(r, true, '`set` returns `true` on creating a new element')
+	t.equal(map.get(key), value, '`get` returns the stored value')
 	t.end()
 })
 
@@ -53,8 +53,8 @@ test('Overwrite key', (t) => {
 	map.set(key, valueA)
 	const r = map.set(key, valueB)
 
-	t.equal(r, false)
-	t.equal(map.get(key), valueB)
+	t.equal(r, false, '`set` returns `false` on overwriting')
+	t.equal(map.get(key), valueB, 'the new value is in place')
 	t.end()
 })
 
@@ -69,10 +69,14 @@ test('Delete key', (t) => {
 	const r = map.delete(keyA)
 	const r2 = map.delete(keyA)
 
-	t.equal(r, valueA)
-	t.equal(r2, undefined)
-	t.equal(map.get(keyA), undefined)
-	t.equal(map.get(keyB), valueB)
+	t.equal(r, valueA, 'the deleted value is returned')
+	t.equal(r2, undefined, '`undefined` is returned for non-existing keys')
+	t.equal(
+		map.get(keyA),
+		undefined,
+		'getting a deleted key returns `undefined`',
+	)
+	t.equal(map.get(keyB), valueB, 'other keys are untouched')
 	t.end()
 })
 
@@ -118,5 +122,58 @@ test('Get reference with insertion', (t) => {
 
 	t.equal(map.get(keyA), valueA)
 	t.equal(map.get(keyB), valueB)
+	t.end()
+})
+
+test('Alternative equals function', (t) => {
+	const keyA = new Uint8Array([4, 2])
+	const keyB = new Uint8Array([4, 3])
+	const valueA = Symbol('value A')
+	const valueB = Symbol('value B')
+
+	const map = create(equals)
+	map.set(keyA, valueA)
+
+	t.equal(
+		map.get(keyB, (a, b) => {
+			t.equal(a, keyA)
+			t.equal(b, keyB)
+			return true
+		}),
+		valueA,
+		'a value is found as they are considered "equal"',
+	)
+
+	t.deepEqual(
+		map.getReference(keyB, false, (a, b) => {
+			t.equal(a, keyA)
+			t.equal(b, keyB)
+			return true
+		}),
+		{key: keyA, value: valueA},
+		'a value is found as they are considered "equal"',
+	)
+
+	t.equal(
+		map.set(keyB, valueB, (a, b) => {
+			t.equal(a, keyA)
+			t.equal(b, keyB)
+			return true
+		}),
+		false,
+		'overwriting existing key (not inserting a new one) as it is considered "equal"',
+	)
+
+	map.set(keyA, valueA)
+	t.equal(
+		map.delete(keyB, (a, b) => {
+			t.equal(a, keyA)
+			t.equal(b, keyB)
+			return true
+		}),
+		valueA,
+		'deleting key as it is considered "equal"',
+	)
+
 	t.end()
 })

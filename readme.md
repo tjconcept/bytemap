@@ -8,20 +8,23 @@ is an attempt to avoid that encoding overhead.
 
 ```js
 const map = createMap(equals) // → {get, set, delete}
-map.get(key, value) // → value
-map.set(key, value) // → true/false ("added a new key")
-map.delete(key, value) // → undefined/existing value
-map.getReference(key, (insertIfUnknown = false)) // → {key, value}
+map.get(key, value, (equals = equals)) // → value
+map.set(key, value, (equals = equals)) // → true/false ("added a new key")
+map.delete(key, value, (equals = equals)) // → undefined/existing value
+map.getReference(key, (insertIfUnknown = false), (equals = equals)) // → {key, value}
 ```
 
 `map.getReference` is a low-level feature for doing in-place updates, updates
 relying on the existing value, or otherwise replace the value at a given key
 without doing new lookups. The `key` must not be altered.
 
+The `equals` function is always invoked with the existing key as the first
+parameter and the input as the second and must return `true` or `false`.
+
 ## Examples
 
 ```js
-import {equals} from 'https://esm.sh/jsr/@std/bytes@1.0.3/equals.js'
+import {equals} from 'https://esm.sh/jsr/@std/bytes@1.0.4/equals.js'
 import createMap from 'https://esm.sh/gh/tjconcept/bytemap@1.0.0'
 
 const keyA = new Uint8Array([42, 128, 35, 77])
@@ -52,6 +55,26 @@ function:
 ```js
 const equals = (a, b) => a.equals(b)
 ```
+
+### Prefix searches
+
+By tweaking the `equals` function the library can be used for map of prefixes
+(rather than exact key lookup):
+
+```js
+// EcmaScript
+import {startsWith} from 'https://esm.sh/jsr/@std/bytes@1.0.4/starts_with.js'
+const prefixEquals = (prefix, input) => startsWith(input, prefix)
+
+// Node.js
+const prefixEquals = (prefix, input) =>
+  input.length >= prefix.length && prefix.compare(input, 0, prefix.length) === 0
+
+map.get(input, prefixEquals)
+```
+
+Do not pass such prefix-equals function for the global one
+(`createmMap(equals)`) as that is likely not desirable for e.g. `set`.
 
 ## Keys
 
