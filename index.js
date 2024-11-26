@@ -23,7 +23,7 @@ function set(equals, map, key, keyOffset, value) {
 		return false
 	} else {
 		const n = (map[k] = new Array(256))
-		set(equals, n, r.key, keyOffset + 1, r.value)
+		setReference(equals, n, r.key, keyOffset + 1, r)
 		set(equals, n, key, keyOffset + 1, value)
 		return true
 	}
@@ -63,8 +63,27 @@ function getReference(equals, map, key, keyOffset, insert) {
 	} else {
 		if (insert) {
 			const n = (map[k] = new Array(256))
-			set(equals, n, r.key, keyOffset + 1, r.value)
+			setReference(equals, n, r.key, keyOffset + 1, r)
 			return getReference(equals, n, key, keyOffset + 1, true)
 		}
+	}
+}
+
+function setReference(equals, map, key, keyOffset, reference) {
+	const k = key[keyOffset]
+	const r = map[k]
+	if (Array.isArray(r)) {
+		return setReference(equals, r, key, keyOffset + 1, reference)
+	} else if (r === undefined) {
+		map[k] = reference
+		return true
+	} else if (equals(r.key, key)) {
+		map[k] = reference
+		return false
+	} else {
+		const n = (map[k] = new Array(256))
+		setReference(equals, n, r.key, keyOffset + 1, r)
+		setReference(equals, n, key, keyOffset + 1, reference)
+		return true
 	}
 }
