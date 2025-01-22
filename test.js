@@ -125,6 +125,22 @@ test('Get reference with insertion', (t) => {
 	t.end()
 })
 
+test('A reference follows the key', (t) => {
+	const keyA = new Uint8Array([4, 2, 2])
+	const keyB = new Uint8Array([4, 2, 3])
+	const map = create(equals)
+	const r = map.getReference(keyA, 1)
+
+	map.set(keyB, 2)
+
+	t.ok(map.getReference(keyA) === r, 'the reference survives rebalancing')
+
+	map.set(keyA, 3)
+
+	t.ok(map.getReference(keyA) === r, 'the reference survives updates')
+	t.end()
+})
+
 test('Alternative equals function', (t) => {
 	const keyA = new Uint8Array([4, 2])
 	const keyB = new Uint8Array([4, 3])
