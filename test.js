@@ -1,5 +1,5 @@
 import {equals} from 'https://esm.sh/jsr/@std/bytes@1.0.3/equals.js'
-import test from 'https://esm.sh/tape@5.9.0'
+import test from 'https://esm.sh/tape@5.9.0?pin=v135'
 import create from './index.js'
 
 test('Set and get a single key', (t) => {
