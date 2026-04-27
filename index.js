@@ -1,12 +1,17 @@
 export default function createMap(equals) {
 	const _equals = equals
 	const map = new Array(256)
+	const entries = createIterableIterator(map)
 	return {
 		get: (key, equals = _equals) => lookup(equals, map, key, 0),
 		set: (key, value, equals = _equals) => set(equals, map, key, 0, value),
 		delete: (key, equals = _equals) => remove(equals, map, key, 0),
 		getReference: (key, insert = false, equals = _equals) =>
 			getReference(equals, map, key, 0, insert),
+		[Symbol.iterator]: entries,
+		entries,
+		keys: createIterableIterator(map, true, false),
+		values: createIterableIterator(map, false, true),
 	}
 }
 
@@ -85,5 +90,25 @@ function setReference(equals, map, key, keyOffset, reference) {
 		setReference(equals, n, r.key, keyOffset + 1, r)
 		setReference(equals, n, key, keyOffset + 1, reference)
 		return true
+	}
+}
+
+function createIterableIterator(map, keys = false, values = false) {
+	return function* iterate(current = map, offset = 0) {
+		const r = current[offset]
+		if (r !== undefined) {
+			if (Array.isArray(r)) {
+				yield* iterate(r, 0)
+			} else if (values) {
+				yield r.value
+			} else if (keys) {
+				yield r.key
+			} else {
+				yield [r.key, r.value]
+			}
+		}
+		if (offset <= 255) {
+			yield* iterate(current, offset + 1)
+		}
 	}
 }

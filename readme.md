@@ -23,6 +23,19 @@ without doing new lookups. The `key` must not be altered.
 The `equals` function is always invoked with the existing key as the first
 parameter and the input as the second and must return `true` or `false`.
 
+## Iteration
+
+The map can be iterated and also has `.entries()`, `.keys()` and `.values()`
+methods akin to
+[`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map).
+
+In contrast to
+[`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map),
+entries, keys and values are all returned in key-sorted order.
+
+The current implementation is very inefficient so consider keeping a separate
+list for hot paths.
+
 ## Examples
 
 ```js
@@ -49,6 +62,14 @@ map.get(keyB) // → undefined
 const r = map.getReference(keyA) // → {key, value}
 r.value = 123
 map.get(keyA) === value // → 123
+
+map.set(keyA, 'A') // → true
+map.set(keyB, 'B') // → true
+for (const [key, value] of map) {
+  console.log(key, value)
+}
+// Uint8Array(4) [ 21, 64, 35, 21 ] B
+// Uint8Array(4) [ 42, 128, 35, 77 ] A
 ```
 
 In Node.js, if all key input is of `Buffer` type, use the built-in equals

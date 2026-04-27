@@ -193,3 +193,54 @@ test('Alternative equals function', (t) => {
 
 	t.end()
 })
+
+test('Iterate entries', (t) => {
+	const map = create(equals)
+	const keyA = new Uint8Array([1, 1])
+	const keyB = new Uint8Array([1, 2])
+	const keyC = new Uint8Array([2, 2])
+	const keyD = new Uint8Array([2, 1])
+	map.set(keyA, 'A')
+	map.set(keyB, 'B')
+	map.set(keyC, 'C')
+	map.set(keyD, 'D')
+
+	t.ok(map[Symbol.iterator] === map.entries)
+	t.deepEqual(Array.from(map), [
+		[keyA, 'A'],
+		[keyB, 'B'],
+		[keyD, 'D'],
+		[keyC, 'C'],
+	])
+	t.end()
+})
+
+test('Iterate keys', (t) => {
+	const map = create(equals)
+	const keyA = new Uint8Array([1, 1])
+	const keyB = new Uint8Array([1, 2])
+	const keyC = new Uint8Array([2, 2])
+	const keyD = new Uint8Array([2, 1])
+	map.set(keyA, 'A')
+	map.set(keyB, 'B')
+	map.set(keyC, 'C')
+	map.set(keyD, 'D')
+
+	t.deepEqual(Array.from(map.keys()), [keyA, keyB, keyD, keyC])
+	t.end()
+})
+
+test('Iterate values', (t) => {
+	const map = create(equals)
+	const keyA = new Uint8Array([1, 1])
+	const keyB = new Uint8Array([1, 2])
+	const keyC = new Uint8Array([2, 2])
+	const keyD = new Uint8Array([2, 1])
+	map.set(keyA, 'A')
+	map.set(keyB, 'B')
+	map.set(keyC, 'C')
+	map.set(keyD, 'D')
+
+	t.deepEqual(Array.from(map.values()), ['A', 'B', 'D', 'C'])
+	t.end()
+})
